@@ -1,0 +1,796 @@
+[
+  {
+    "inputs": [],
+    "name": "MAX_DECIMALS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "WAD_PRECISION",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "x",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "bytes16",
+        "name": "y",
+        "type": "bytes16"
+      }
+    ],
+    "name": "addBytes",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastPriceTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "frontRunningInterval",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "updateInterval",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "currentUpdateIntervalId",
+        "type": "uint256"
+      }
+    ],
+    "name": "appropriateUpdateIntervalId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "int256",
+            "name": "oldPrice",
+            "type": "int256"
+          },
+          {
+            "internalType": "int256",
+            "name": "newPrice",
+            "type": "int256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "longBalance",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "shortBalance",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes16",
+            "name": "leverageAmount",
+            "type": "bytes16"
+          },
+          {
+            "internalType": "bytes16",
+            "name": "fee",
+            "type": "bytes16"
+          }
+        ],
+        "internalType": "struct PoolSwapLibrary.PriceChangeData",
+        "name": "priceChange",
+        "type": "tuple"
+      }
+    ],
+    "name": "calculatePriceChange",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "x",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "bytes16",
+        "name": "y",
+        "type": "bytes16"
+      }
+    ],
+    "name": "compareDecimals",
+    "outputs": [
+      {
+        "internalType": "int8",
+        "name": "",
+        "type": "int8"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "ratio",
+        "type": "bytes16"
+      }
+    ],
+    "name": "convertDecimalToUInt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "convertUIntToDecimal",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "a",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "b",
+        "type": "int256"
+      }
+    ],
+    "name": "divInt",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_wadValue",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_decimals",
+        "type": "uint256"
+      }
+    ],
+    "name": "fromWad",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "reward",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "shortBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "longBalance",
+        "type": "uint256"
+      }
+    ],
+    "name": "getBalancesAfterFees",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "price",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getBurn",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "lossMultiplier",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "balance",
+        "type": "uint256"
+      }
+    ],
+    "name": "getLossAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "ratio",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "int8",
+        "name": "direction",
+        "type": "int8"
+      },
+      {
+        "internalType": "bytes16",
+        "name": "leverage",
+        "type": "bytes16"
+      }
+    ],
+    "name": "getLossMultiplier",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "price",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getMint",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenSupply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "balance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "shadowBalance",
+        "type": "uint256"
+      }
+    ],
+    "name": "getMintAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "price",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "bytes16",
+        "name": "oppositePrice",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountBurnedInstantMint",
+        "type": "uint256"
+      }
+    ],
+    "name": "getMintWithBurns",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "sideBalance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenSupply",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPrice",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_numerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_denominator",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRatio",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes16",
+            "name": "longPrice",
+            "type": "bytes16"
+          },
+          {
+            "internalType": "bytes16",
+            "name": "shortPrice",
+            "type": "bytes16"
+          },
+          {
+            "internalType": "uint256",
+            "name": "currentUpdateIntervalId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "updateIntervalId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "longMintAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "longBurnAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "shortMintAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "shortBurnAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "longBurnShortMintAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "shortBurnLongMintAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes16",
+            "name": "burnFee",
+            "type": "bytes16"
+          }
+        ],
+        "internalType": "struct PoolSwapLibrary.UpdateData",
+        "name": "data",
+        "type": "tuple"
+      }
+    ],
+    "name": "getUpdatedAggregateBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_newLongTokens",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_newShortTokens",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_longBurnFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_shortBurnFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_newSettlementTokens",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenSupply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "balance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "shadowBalance",
+        "type": "uint256"
+      }
+    ],
+    "name": "getWithdrawAmountOnBurn",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "subjectTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastPriceTimestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "updateInterval",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "frontRunningInterval",
+        "type": "uint256"
+      }
+    ],
+    "name": "isBeforeFrontRunningInterval",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "number",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "numerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "denominator",
+        "type": "uint256"
+      }
+    ],
+    "name": "mulFraction",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "x",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "bytes16",
+        "name": "y",
+        "type": "bytes16"
+      }
+    ],
+    "name": "multiplyBytes",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "a",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "b",
+        "type": "uint256"
+      }
+    ],
+    "name": "multiplyDecimalByUInt",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "one",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes16",
+        "name": "x",
+        "type": "bytes16"
+      },
+      {
+        "internalType": "bytes16",
+        "name": "y",
+        "type": "bytes16"
+      }
+    ],
+    "name": "subtractBytes",
+    "outputs": [
+      {
+        "internalType": "bytes16",
+        "name": "",
+        "type": "bytes16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  }
+]

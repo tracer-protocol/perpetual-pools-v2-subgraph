@@ -1,0 +1,115 @@
+type LeveragedPool @entity {
+  id: ID! # address
+  name: String!
+  keeper: Bytes! # address
+  committer: Bytes! # address
+  longToken: Bytes! # address
+  shortToken: Bytes! # address
+  quoteToken: Bytes! # address
+  quoteTokenDecimals: BigInt! # address
+  oracle: Bytes! # address
+  feeReceiver: Bytes! # address
+  frontRunningInterval: BigInt!
+  tradingFee: Bytes!
+  updateInterval: BigInt!
+  lastPriceTimestamp: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  txnHash: String!
+  paused: Boolean!
+}
+
+type PoolFactory @entity {
+  id: ID!
+  poolsCount: BigInt! # number of pools deployed
+}
+
+type Upkeep @entity {
+  id: ID! # poolAddress-upkeepIntervalId
+  pool: LeveragedPool!
+  poolAddress: Bytes! # address
+  txnHash: Bytes
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  upkeepIntervalId: BigInt!
+  startPrice: BigInt
+  endPrice: BigInt
+  longBalance: BigInt!
+  shortBalance: BigInt!
+  longTokenSupply: BigInt!
+  shortTokenSupply: BigInt!
+  commits: [Commit!]! @derivedFrom(field: "upkeep")
+  longTokenPrice: BigInt!
+  longTokenPriceRaw: Bytes!
+  shortTokenPrice: BigInt!
+  shortTokenPriceRaw: Bytes!
+  burningFee: BigInt!
+  burningFeeRaw: Bytes!
+  # gasPaid: BigInt! # TODO add this
+}
+
+type Commit @entity {
+  id: ID! # transaction hash
+  trader: Bytes!
+  pool: Bytes! # address
+  created: BigInt! # timestamp
+  blockNumber: BigInt! # block number
+  updateIntervalId: BigInt!
+  txnHash: Bytes!
+  type: CommitType!
+  typeRaw: Int!
+  amount: BigInt!
+  applicableFee: BigInt
+  applicableFeeRaw: Bytes
+  isExecuted: Boolean
+  upkeep: Upkeep # poolAddress-upkeepIntervalId
+}
+
+type PoolRebalance @entity {
+  id: ID! # poolAddress-blockNumber
+  pool: LeveragedPool!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  shortBalanceChange: BigInt!
+  longBalanceChange: BigInt!
+  shortFeeAmount: BigInt!
+  longFeeAmount: BigInt!
+}
+
+type UpkeepSuccess @entity {
+  id: ID! # poolAddress-blockNumber
+  startPrice: BigInt!
+  endPrice: BigInt!
+  data: Bytes!
+  pool: Bytes!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
+type KeeperPayment @entity {
+  id: ID! # txn hash
+  pool: LeveragedPool! # address
+  keeper: Bytes! # address
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  reward: BigInt! # amount paid in settlement tokens
+}
+
+type LeveragedPoolByPoolCommitter @entity {
+  id: ID! # pool committer address
+  pool: Bytes!
+}
+
+type PendingCommitsByPoolCommitterAndInterval @entity {
+  id: ID! # poolCommitterAddress-updateIntervalId
+  commitIds: [String!]!
+}
+
+enum CommitType {
+  ShortMint
+  ShortBurn
+  LongMint
+  LongBurn
+  LongBurnShortMint
+  ShortBurnLongMint
+}

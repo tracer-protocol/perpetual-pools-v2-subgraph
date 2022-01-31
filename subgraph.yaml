@@ -1,0 +1,95 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: PoolFactory
+    network: arbitrum-rinkeby
+    source:
+      address: "0x2076D40bb991e73cAD559087b12784870b4b2211"
+      abi: PoolFactory
+      startBlock: 9040434
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - PoolFactory
+      abis:
+        - name: PoolFactory
+          file: ./abis/PoolFactory.json
+      eventHandlers:
+        - event: DeployPool(indexed address,address,string)
+          handler: handleDeployPool
+      file: ./src/mappings/poolFactory.ts
+templates:
+  - name: LeveragedPool
+    kind: ethereum/contract
+    network: arbitrum-rinkeby
+    source:
+      abi: LeveragedPool
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/leveragedPool.ts
+      entities:
+        - LeveragedPool
+      abis:
+        - name: LeveragedPool
+          file: ./abis/LeveragedPool.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: PoolInitialized(indexed address,indexed address,address,string)
+          handler: poolInitialized
+        - event: PoolRebalance(int256,int256,uint256,uint256)
+          handler: poolRebalance
+  - name: PoolKeeper
+    kind: ethereum/contract
+    network: arbitrum-rinkeby
+    source:
+      abi: PoolKeeper
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/poolKeeper.ts
+      entities:
+        - PoolKeeper
+      abis:
+        - name: PoolKeeper
+          file: ./abis/PoolKeeper.json
+        - name: LeveragedPool
+          file: ./abis/LeveragedPool.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: UpkeepSuccessful(indexed address,bytes,indexed int256,indexed int256)
+          handler: upkeepSuccessful
+  - name: PoolCommitter
+    kind: ethereum/contract
+    network: arbitrum-rinkeby
+    source:
+      abi: PoolCommitter
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/poolCommitter.ts
+      entities:
+        - PoolCommitter
+      abis:
+        - name: PoolCommitter
+          file: ./abis/PoolCommitter.json
+        - name: LeveragedPool
+          file: ./abis/LeveragedPool.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: PoolSwapLibrary
+          file: ./abis/PoolSwapLibrary.json
+      eventHandlers:
+        - event: CreateCommit(indexed address,indexed uint256,indexed uint8,uint256,bytes16)
+          handler: createdCommit
+        - event: ExecutedCommitsForInterval(indexed uint256,bytes16)
+          handler: executedCommitsForInterval
