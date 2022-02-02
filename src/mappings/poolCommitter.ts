@@ -276,14 +276,28 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 
 			const shortTokenDiff = aggregateBalances.shortTokens.minus(aggregateBalancesEntity.shortTokenHolding)
 			const longTokenDiff = aggregateBalances.longTokens.minus(aggregateBalancesEntity.longTokenHolding)
-			aggregateBalancesEntity.longTokenAvgBuyIn = BigInt.fromString(calcWeightedAverage(
-				[aggregateBalancesEntity.longTokenAvgBuyIn, longPrice], // values 
-				[aggregateBalancesEntity.longTokenHolding, longTokenDiff], // weights
-			).toString())
-			aggregateBalancesEntity.shortTokenAvgBuyIn = BigInt.fromString(calcWeightedAverage(
-				[aggregateBalancesEntity.shortTokenAvgBuyIn, shortPrice], // values 
-				[aggregateBalancesEntity.shortTokenHolding, shortTokenDiff], // weights
-			).toString())
+
+
+			// if aggregateBalances go to 0 this will be negative.
+			// mathematically I think without this check the weighted avg would still work
+			if (shortTokenDiff.le(BigInt.fromI32(0))) {
+				// this means no change in balances or 
+				aggregateBalancesEntity.shortTokenAvgBuyIn = BigInt.fromI32(0)
+			} else {
+				aggregateBalancesEntity.shortTokenAvgBuyIn = BigInt.fromString(calcWeightedAverage(
+					[aggregateBalancesEntity.shortTokenAvgBuyIn, shortPrice], // values 
+					[aggregateBalancesEntity.shortTokenHolding, shortTokenDiff], // weights
+				).toString())
+			}
+
+			if (longTokenDiff.le(BigInt.fromI32(0))) {
+				aggregateBalancesEntity.longTokenAvgBuyIn = BigInt.fromI32(0)
+			} else {
+				aggregateBalancesEntity.longTokenAvgBuyIn = BigInt.fromString(calcWeightedAverage(
+					[aggregateBalancesEntity.longTokenAvgBuyIn, longPrice], // values 
+					[aggregateBalancesEntity.longTokenHolding, longTokenDiff], // weights
+				).toString())
+			}
 
 			aggregateBalancesEntity.longTokenHolding = aggregateBalances.longTokens;
 			aggregateBalancesEntity.shortTokenHolding = aggregateBalances.shortTokens;
