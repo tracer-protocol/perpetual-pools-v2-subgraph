@@ -207,6 +207,10 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 				aggregateBalancesEntity = initUserAggregateBalance(poolId, trader)
 			}
 			const traderAddress = Address.fromString(trader.toHexString());
+			// TODO this can be back calculated commit amount and price
+			// would need to summate token amounts
+			// burnTokenDiff = commitAmount / price
+			// mintTokenDiff = commitAmount * price
 			const aggregateBalances = poolCommitterInstance.getAggregateBalance(traderAddress);
 
 			const shortTokenDiff = aggregateBalances.shortTokens.minus(aggregateBalancesEntity.shortTokenHolding)
