@@ -98,13 +98,17 @@ export function formatDecimalUnits(value: BigDecimal, decimals: BigInt): BigDeci
 }
 
 
-export function calcWeightedAverage(values: BigInt[], weights: BigInt[]): BigInt {
+export function calcWeightedAverage(tokens: BigInt[], prices: BigInt[]): BigInt{
 
 	let numerator = BigInt.fromI32(0);
 	let denominator = BigInt.fromI32(0);
-	for (let i = 0; i < values.length; i++) {
-		denominator = denominator.plus(values[i].times(weights[i]))
-		numerator = numerator.plus(values[i]);
+	for (let i = 0; i < tokens.length; i++) {
+		numerator = numerator.plus(tokens[i].times(prices[i]))
+		denominator = numerator.plus(tokens[i]);
+	}
+
+	if (denominator.equals(BigInt.fromI32(0))) {
+		return BigInt.fromI32(0);
 	}
 	return numerator.div(denominator)
 }
