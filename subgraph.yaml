@@ -93,3 +93,5 @@ templates:
           handler: createdCommit
         - event: ExecutedCommitsForInterval(indexed uint256,bytes16)
           handler: executedCommitsForInterval
+        - event: Claim(indexed address)
+          handler: claim 
