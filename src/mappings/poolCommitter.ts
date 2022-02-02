@@ -99,50 +99,6 @@ export function createdCommit(event: CreateCommit): void {
 	relevantPendingCommits.commitIds = commitIds;
 
 	relevantPendingCommits.save();
-
-
-
-	// track users aggregateEntryPrice
-	const poolCommitterInstance = PoolCommitter.bind(event.address);
-	const poolInstance = LeveragedPool.bind(leveragedPoolByPoolCommitter.pool as Address);
-	const aggregateBalanceId = event.address.toHexString()+"-"+trader.toHexString()
-	let aggregateBalance = UserAggregateBalances.load(aggregateBalanceId);
-
-	if (!aggregateBalance) {
-		aggregateBalance = initUserAggregateBalance(pool.id, trader);
-	}
-
-	aggregateBalance.lastRecordedInterval = commit.updateIntervalId;
-
-	const _commits = poolCommitterInstance.totalPoolCommitments(commit.updateIntervalId);
-
-	// uint256 longMintAmount; --> 0 
-	// uint256 longBurnAmount; --> 1
-	// uint256 shortMintAmount; --> 2
-	// uint256 shortBurnAmount; --> 3
-	// uint256 shortBurnLongMintAmount; --> 4
-	// uint256 longBurnShortMintAmount; --> 5
-	// uint256 updateIntervalId; --> 6
-	const totalLongBurn = _commits.value0.plus(_commits.value5);
-	const totalShortBurn = _commits.value3.plus(_commits.value4);
-
-	const longTokenInstance = ERC20.bind(pool.longToken as Address);
-	const shortTokenInstance = ERC20.bind(pool.shortToken as Address);
-	
-	const poolSwapLibrary = PoolSwapLibrary.bind(poolSwapLibraryAddress);
-
-	const longPrice =  poolSwapLibrary.getPrice(
-		poolInstance.longBalance(),
-		longTokenInstance.totalSupply().plus(totalLongBurn)
-	);
-	const shortPrice = poolSwapLibrary.getPrice(
-		poolInstance.longBalance(),
-		shortTokenInstance.totalSupply().plus(totalShortBurn)
-	)
-	aggregateBalance.lastRecordedLongTokenPrice = BigInt.fromByteArray(longPrice);
-	aggregateBalance.lastRecordedShortTokenPrice = BigInt.fromByteArray(shortPrice);
-
-
 }
 
 // event ExecutedCommitsForInterval(uint256 indexed updateIntervalId, bytes16 burningFee);
