@@ -1,11 +1,11 @@
 
 import {
 	Commit,
+	UserAggregateBalance,
 	LeveragedPoolByPoolCommitter,
 	PendingCommitsByPoolCommitterAndInterval,
 	Upkeep,
 	LeveragedPool as LeveragedPoolEntity,
-	UserAggregateBalances
 } from '../../generated/schema';
 import {
 	Claim,
@@ -16,9 +16,7 @@ import {
 import { LeveragedPool } from '../../generated/templates/PoolCommitter/LeveragedPool';
 import { ERC20 } from '../../generated/templates/PoolCommitter/ERC20';
 import { Address, store, BigInt, Bytes } from '@graphprotocol/graph-ts';
-import { calcWeightedAverage, floatingPointBytesToInt, initUserAggregateBalance, poolSwapLibraryAddress } from '../utils/helper'
-
-import { PoolSwapLibrary } from '../../generated/templates/PoolCommitter/PoolSwapLibrary';
+import { calcWeightedAverage, floatingPointBytesToInt, initUserAggregateBalance } from '../utils/helper'
 
 let SHORT_MINT = 0;
 let SHORT_BURN = 1;
@@ -203,7 +201,7 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 			let trader = traders[i]
 
 			const aggregateBalanceId = poolId+'-'+trader.toHexString();
-			let aggregateBalancesEntity = UserAggregateBalances.load(aggregateBalanceId);
+			let aggregateBalancesEntity = UserAggregateBalance.load(aggregateBalanceId);
 
 			if (!aggregateBalancesEntity) {
 				aggregateBalancesEntity = initUserAggregateBalance(poolId, trader)
@@ -264,7 +262,7 @@ export function claim(event: Claim): void {
 	}
 
 	const aggregateBalanceId = pool.id.toString()+'-'+event.params.user.toHexString();
-	let aggregateBalance = UserAggregateBalances.load(aggregateBalanceId)
+	let aggregateBalance = UserAggregateBalance.load(aggregateBalanceId);
 
 	if (!aggregateBalance) {
 		aggregateBalance = initUserAggregateBalance(pool.id, event.params.user);

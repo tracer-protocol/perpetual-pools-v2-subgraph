@@ -2,7 +2,7 @@ import { Address, BigDecimal, BigInt, Bytes, log, TypedMap } from "@graphprotoco
 import { LeveragedPool,  } from "../../generated/templates/LeveragedPool/LeveragedPool";
 import { ERC20 } from "../../generated/templates/LeveragedPool/ERC20";
 import { PoolSwapLibrary } from "../../generated/templates/PoolCommitter/PoolSwapLibrary";
-import { LeveragedPool as LeveragedPoolEntity, LeveragedPoolByPoolCommitter, UserAggregateBalances } from "../../generated/schema"
+import { LeveragedPool as LeveragedPoolEntity, LeveragedPoolByPoolCommitter, UserAggregateBalance } from "../../generated/schema"
 
 import { PoolCommitter, PoolKeeper } from "../../generated/templates"
 
@@ -64,9 +64,9 @@ export function initPool(
 export function initUserAggregateBalance(
 	pool: string,
 	user: Bytes
-): UserAggregateBalances {
+): UserAggregateBalance {
 	const aggregateBalanceId = pool + "-" + user.toHexString();
-	const aggregateBalance = new UserAggregateBalances(aggregateBalanceId);
+	const aggregateBalance = new UserAggregateBalance(aggregateBalanceId);
 	aggregateBalance.pool = pool;
 	aggregateBalance.trader = user;
 	aggregateBalance.longTokenHolding = BigInt.fromI32(0);
