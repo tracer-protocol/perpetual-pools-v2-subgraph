@@ -98,7 +98,7 @@ export function formatDecimalUnits(value: BigDecimal, decimals: BigInt): BigDeci
 }
 
 
-export function calcWeightedAverage(values: BigInt[], weights: BigInt[]): BigDecimal {
+export function calcWeightedAverage(values: BigInt[], weights: BigInt[]): BigInt {
 
 	let numerator = BigInt.fromI32(0);
 	let denominator = BigInt.fromI32(0);
@@ -106,7 +106,7 @@ export function calcWeightedAverage(values: BigInt[], weights: BigInt[]): BigDec
 		denominator = denominator.plus(values[i].times(weights[i]))
 		numerator = numerator.plus(values[i]);
 	}
-	return numerator.toBigDecimal().div(denominator.toBigDecimal())
+	return numerator.div(denominator)
 }
 
 export function floatingPointBytesToInt(bytes: Bytes, decimals: BigInt): BigInt {

@@ -8,7 +8,6 @@ import {
 	UserAggregateBalances
 } from '../../generated/schema';
 import {
-	AggregateBalanceUpdated,
 	Claim,
 	CreateCommit,
 	ExecutedCommitsForInterval,
@@ -16,7 +15,7 @@ import {
 } from '../../generated/templates/PoolCommitter/PoolCommitter';
 import { LeveragedPool } from '../../generated/templates/PoolCommitter/LeveragedPool';
 import { ERC20 } from '../../generated/templates/PoolCommitter/ERC20';
-import { Address, store, log, BigInt, Bytes } from '@graphprotocol/graph-ts';
+import { Address, store, BigInt, Bytes } from '@graphprotocol/graph-ts';
 import { calcWeightedAverage, floatingPointBytesToInt, initUserAggregateBalance, poolSwapLibraryAddress } from '../utils/helper'
 
 import { PoolSwapLibrary } from '../../generated/templates/PoolCommitter/PoolSwapLibrary';
@@ -141,8 +140,8 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 	let shortTokenAddress = Address.fromString(poolEntity.shortToken.toHexString());
 	let poolAddress = Address.fromString(leveragedPoolByPoolCommitter.pool.toHexString());
 
-	const longTokenInstance = ERC20.bind(longTokenAddress as Address);
-	const shortTokenInstance = ERC20.bind(shortTokenAddress as Address);
+	const longTokenInstance = ERC20.bind(longTokenAddress);
+	const shortTokenInstance = ERC20.bind(shortTokenAddress);
 	const poolCommitterInstance = PoolCommitter.bind(event.address);
 	const poolInstance = LeveragedPool.bind(poolAddress);
 
@@ -151,10 +150,12 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 	let burningFee = floatingPointBytesToInt(event.params.burningFee, poolEntity.quoteTokenDecimals)
 	upkeep.burningFeeRaw = event.params.burningFee;
 	upkeep.burningFee = burningFee;
-
-	upkeep.longTokenPrice = floatingPointBytesToInt(prices.value0, poolEntity.quoteTokenDecimals);
+	
+	const longTokenPrice = floatingPointBytesToInt(prices.value0, poolEntity.quoteTokenDecimals);
+	const shortTokenPrice = floatingPointBytesToInt(prices.value1, poolEntity.quoteTokenDecimals);
+	upkeep.longTokenPrice = longTokenPrice;
 	upkeep.longTokenPriceRaw = prices.value0;
-	upkeep.shortTokenPrice = floatingPointBytesToInt(prices.value1, poolEntity.quoteTokenDecimals);
+	upkeep.shortTokenPrice = shortTokenPrice;
 	upkeep.shortTokenPriceRaw = prices.value1;
 
 	const balances = poolInstance.balances();
@@ -197,27 +198,6 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 				traders.push(commit.trader)
 			}
 		}
-
-		// use library for price calcs
-		const poolSwapLibrary = PoolSwapLibrary.bind(poolSwapLibraryAddress);
-
-		// fetch token supplys
-		const longTokenInstance = ERC20.bind(poolEntity.longToken as Address);
-		const shortTokenInstance = ERC20.bind(poolEntity.shortToken as Address);
-		const longTokenSupply = longTokenInstance.totalSupply()
-		const shortTokenSupply = shortTokenInstance.totalSupply()
-		
-		// This event is emmitted after the supply has been changed so
-		// dont need to factor in burn amounts
-		const longPrice = floatingPointBytesToInt(poolSwapLibrary.getPrice(
-			poolInstance.longBalance(),
-			longTokenSupply
-		), poolEntity.quoteTokenDecimals);
-		const shortPrice = floatingPointBytesToInt(poolSwapLibrary.getPrice(
-			poolInstance.shortBalance(),
-			shortTokenSupply
-		), poolEntity.quoteTokenDecimals);
-
 		
 		for (let i = 0; i < traders.length; i++) {
 			let trader = traders[i]
@@ -228,7 +208,8 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 			if (!aggregateBalancesEntity) {
 				aggregateBalancesEntity = initUserAggregateBalance(poolId, trader)
 			}
-			const aggregateBalances = poolCommitterInstance.getAggregateBalance(trader as Address);
+			const traderAddress = Address.fromString(trader.toHexString());
+			const aggregateBalances = poolCommitterInstance.getAggregateBalance(traderAddress);
 
 			const shortTokenDiff = aggregateBalances.shortTokens.minus(aggregateBalancesEntity.shortTokenHolding)
 			const longTokenDiff = aggregateBalances.longTokens.minus(aggregateBalancesEntity.longTokenHolding)
@@ -240,19 +221,19 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 				// this means no change in balances or 
 				aggregateBalancesEntity.shortTokenAvgBuyIn = BigInt.fromI32(0)
 			} else {
-				aggregateBalancesEntity.shortTokenAvgBuyIn = BigInt.fromString(calcWeightedAverage(
-					[aggregateBalancesEntity.shortTokenAvgBuyIn, shortPrice], // values 
+				aggregateBalancesEntity.shortTokenAvgBuyIn = calcWeightedAverage(
+					[aggregateBalancesEntity.shortTokenAvgBuyIn, shortTokenPrice], // values 
 					[aggregateBalancesEntity.shortTokenHolding, shortTokenDiff], // weights
-				).toString())
+				)
 			}
 
 			if (longTokenDiff.le(BigInt.fromI32(0))) {
 				aggregateBalancesEntity.longTokenAvgBuyIn = BigInt.fromI32(0)
 			} else {
-				aggregateBalancesEntity.longTokenAvgBuyIn = BigInt.fromString(calcWeightedAverage(
-					[aggregateBalancesEntity.longTokenAvgBuyIn, longPrice], // values 
+				aggregateBalancesEntity.longTokenAvgBuyIn = calcWeightedAverage(
+					[aggregateBalancesEntity.longTokenAvgBuyIn, longTokenPrice], // values 
 					[aggregateBalancesEntity.longTokenHolding, longTokenDiff], // weights
-				).toString())
+				)
 			}
 
 			aggregateBalancesEntity.longTokenHolding = aggregateBalances.longTokens;
@@ -277,8 +258,6 @@ export function claim(event: Claim): void {
 
 	let pool = LeveragedPoolEntity.load(leveragedPoolByPoolCommitter.pool.toHexString());
 
-
-	// let poolCommitterInstance = PoolCommitter.bind(event.address);
 
 	if(!pool) {
 		throw new Error('LeveragedPool not found when handling new commit')
