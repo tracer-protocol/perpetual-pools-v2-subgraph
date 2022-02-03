@@ -207,6 +207,10 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 				aggregateBalancesEntity = initUserAggregateBalance(poolId, trader)
 			}
 			const traderAddress = Address.fromString(trader.toHexString());
+			// TODO this can be back calculated commit amount and price
+			// would need to summate token amounts
+			// burnTokenDiff = commitAmount / price
+			// mintTokenDiff = commitAmount * price
 			const aggregateBalances = poolCommitterInstance.getAggregateBalance(traderAddress);
 
 			const shortTokenDiff = aggregateBalances.shortTokens.minus(aggregateBalancesEntity.shortTokenHolding)
@@ -250,14 +254,14 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 export function claim(event: Claim): void {
 	let leveragedPoolByPoolCommitter = LeveragedPoolByPoolCommitter.load(event.address.toHexString());
 	if(!leveragedPoolByPoolCommitter) {
-		throw new Error('LeveragedPoolByPoolCommitter not set when handling new commit')
+		throw new Error('LeveragedPoolByPoolCommitter not set when handling claim')
 	}
 
 	let pool = LeveragedPoolEntity.load(leveragedPoolByPoolCommitter.pool.toHexString());
 
 
 	if(!pool) {
-		throw new Error('LeveragedPool not found when handling new commit')
+		throw new Error('LeveragedPool not found when handling claim')
 	}
 
 	const aggregateBalanceId = pool.id.toString()+'-'+event.params.user.toHexString();

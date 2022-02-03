@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt, Bytes, log, TypedMap } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { LeveragedPool,  } from "../../generated/templates/LeveragedPool/LeveragedPool";
 import { ERC20 } from "../../generated/templates/LeveragedPool/ERC20";
 import { PoolSwapLibrary } from "../../generated/templates/PoolCommitter/PoolSwapLibrary";
@@ -109,7 +109,7 @@ export function calcWeightedAverage(tokens: BigInt[], prices: BigInt[]): BigInt{
 	let denominator = BigInt.fromI32(0);
 	for (let i = 0; i < tokens.length; i++) {
 		numerator = numerator.plus(tokens[i].times(prices[i]))
-		denominator = numerator.plus(tokens[i]);
+		denominator = denominator.plus(tokens[i]);
 	}
 
 	if (denominator.equals(BigInt.fromI32(0))) {
