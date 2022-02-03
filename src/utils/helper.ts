@@ -2,7 +2,12 @@ import { Address, BigDecimal, BigInt, Bytes, log, TypedMap } from "@graphprotoco
 import { LeveragedPool,  } from "../../generated/templates/LeveragedPool/LeveragedPool";
 import { ERC20 } from "../../generated/templates/LeveragedPool/ERC20";
 import { PoolSwapLibrary } from "../../generated/templates/PoolCommitter/PoolSwapLibrary";
-import { LeveragedPool as LeveragedPoolEntity, LeveragedPoolByPoolCommitter, UserAggregateBalance } from "../../generated/schema"
+import {
+	LeveragedPool as LeveragedPoolEntity,
+	LeveragedPoolByPoolCommitter,
+	UserAggregateBalance,
+	CachedConvertedBytesToUint
+} from "../../generated/schema"
 
 import { PoolCommitter, PoolKeeper } from "../../generated/templates"
 
@@ -114,12 +119,22 @@ export function calcWeightedAverage(tokens: BigInt[], prices: BigInt[]): BigInt{
 }
 
 export function floatingPointBytesToInt(bytes: Bytes, decimals: BigInt): BigInt {
+	const cacheId = bytes.toHexString()+'-'+decimals.toString();
+	const cachedResult = CachedConvertedBytesToUint.load(cacheId);
+
+	if(cachedResult) {
+		return cachedResult.value;
+	}
+
 	const poolSwapLibrary = PoolSwapLibrary.bind(poolSwapLibraryAddress);
 
-	// TODO: this still isn't quite right
-	const normalizer = BigInt.fromI32(1).times(BigInt.fromI32(10).pow(u8(decimals.toI32())))
+	const normalizer = BigInt.fromI32(10).pow(u8(decimals.toI32()))
 	const normalizedBytes = poolSwapLibrary.multiplyDecimalByUInt(bytes, normalizer);
 	const convertedBytes = poolSwapLibrary.convertDecimalToUInt(normalizedBytes);
+
+	const newCacheEntry = new CachedConvertedBytesToUint(cacheId);
+	newCacheEntry.value = convertedBytes;
+	newCacheEntry.save();
 
 	return convertedBytes
 }
