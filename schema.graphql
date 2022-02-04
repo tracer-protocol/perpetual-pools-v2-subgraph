@@ -65,6 +65,18 @@ type Commit @entity {
   upkeep: Upkeep # poolAddress-upkeepIntervalId
 }
 
+type UserAggregateBalance @entity {
+  id: ID! # pool-user
+  pool: LeveragedPool!
+  trader: Bytes!
+  longTokenHolding: BigInt!
+  shortTokenHolding: BigInt!
+  settlementTokenHolding: BigInt!
+  longTokenAvgBuyIn: BigInt!
+  shortTokenAvgBuyIn: BigInt!
+
+}
+
 type PoolRebalance @entity {
   id: ID! # poolAddress-blockNumber
   pool: LeveragedPool!

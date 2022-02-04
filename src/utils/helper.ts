@@ -1,10 +1,11 @@
-import { Address, BigDecimal, BigInt, Bytes, log, TypedMap } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { LeveragedPool,  } from "../../generated/templates/LeveragedPool/LeveragedPool";
 import { ERC20 } from "../../generated/templates/LeveragedPool/ERC20";
 import { PoolSwapLibrary } from "../../generated/templates/PoolCommitter/PoolSwapLibrary";
 import {
 	LeveragedPool as LeveragedPoolEntity,
 	LeveragedPoolByPoolCommitter,
+	UserAggregateBalance,
 	CachedConvertedBytesToUint
 } from "../../generated/schema"
 
@@ -65,6 +66,23 @@ export function initPool(
 	return pool;
 }
 
+export function initUserAggregateBalance(
+	pool: string,
+	user: Bytes
+): UserAggregateBalance {
+	const aggregateBalanceId = pool + "-" + user.toHexString();
+	const aggregateBalance = new UserAggregateBalance(aggregateBalanceId);
+	aggregateBalance.pool = pool;
+	aggregateBalance.trader = user;
+	aggregateBalance.longTokenHolding = BigInt.fromI32(0);
+	aggregateBalance.shortTokenHolding = BigInt.fromI32(0);
+	aggregateBalance.settlementTokenHolding = BigInt.fromI32(0);
+	aggregateBalance.longTokenAvgBuyIn = BigInt.fromI32(0);
+	aggregateBalance.shortTokenAvgBuyIn = BigInt.fromI32(0);
+
+	return aggregateBalance;
+}
+
 export function fromWad(wadValue: BigInt, decimals: BigInt): BigDecimal {
 	let MAX_DECIMALS = BigInt.fromI32(18)
 	let u8Decimals = u8(MAX_DECIMALS.minus(decimals).toI32());
@@ -82,6 +100,22 @@ export function formatDecimalUnits(value: BigDecimal, decimals: BigInt): BigDeci
 	let u8Decimals = u8(decimals.toI32());
 	let scaler = BigInt.fromI32(10).pow(u8Decimals);
 	return value.div(scaler.toBigDecimal());
+}
+
+
+export function calcWeightedAverage(tokens: BigInt[], prices: BigInt[]): BigInt{
+
+	let numerator = BigInt.fromI32(0);
+	let denominator = BigInt.fromI32(0);
+	for (let i = 0; i < tokens.length; i++) {
+		numerator = numerator.plus(tokens[i].times(prices[i]))
+		denominator = denominator.plus(tokens[i]);
+	}
+
+	if (denominator.equals(BigInt.fromI32(0))) {
+		return BigInt.fromI32(0);
+	}
+	return numerator.div(denominator)
 }
 
 export function floatingPointBytesToInt(bytes: Bytes, decimals: BigInt): BigInt {
