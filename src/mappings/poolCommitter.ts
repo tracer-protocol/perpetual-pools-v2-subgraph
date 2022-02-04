@@ -213,24 +213,29 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 			// mintTokenDiff = commitAmount * price
 			const aggregateBalances = poolCommitterInstance.getAggregateBalance(traderAddress);
 
-			const shortTokenDiff = aggregateBalances.shortTokens.minus(aggregateBalancesEntity.shortTokenHolding)
-			const longTokenDiff = aggregateBalances.longTokens.minus(aggregateBalancesEntity.longTokenHolding)
+			let shortTokenDiff = aggregateBalancesEntity.shortTokenHolding.minus(aggregateBalances.shortTokens);
+			let longTokenDiff = aggregateBalancesEntity.longTokenHolding.minus(aggregateBalances.longTokens);
 
+			const ZERO = BigInt.fromI32(0);
 
-			// if aggregateBalances go to 0 this will be negative.
-			// mathematically I think without this check the weighted avg would still work
-			if (shortTokenDiff.lt(BigInt.fromI32(0))) {
+			if (aggregateBalances.shortTokens.equals(ZERO)) { // no more tokens
 				aggregateBalancesEntity.shortTokenAvgBuyIn = BigInt.fromI32(0)
-			} else {
+			} else if (shortTokenDiff.lt(ZERO)) { 
+				// user has minted more tokens balance has increased
+				shortTokenDiff = shortTokenDiff.abs()
 				aggregateBalancesEntity.shortTokenAvgBuyIn = calcWeightedAverage(
 					[aggregateBalancesEntity.shortTokenHolding, shortTokenDiff],
 					[aggregateBalancesEntity.shortTokenAvgBuyIn, shortTokenPrice],
 				)
-			}
+			} 
+			// if the user has burnt some amount but not all the token diff will be > 0
+			// and will fall through these checks
 
-			if (longTokenDiff.lt(BigInt.fromI32(0))) {
+			if (aggregateBalances.longTokens.equals(ZERO)) { // no more tokens
 				aggregateBalancesEntity.longTokenAvgBuyIn = BigInt.fromI32(0)
-			} else {
+			} else if (longTokenDiff.lt(ZERO)) {
+				// user has minted more tokens balance has increased
+				longTokenDiff = longTokenDiff.abs();
 				aggregateBalancesEntity.longTokenAvgBuyIn = calcWeightedAverage(
 					[aggregateBalancesEntity.longTokenHolding, longTokenDiff],
 					[aggregateBalancesEntity.longTokenAvgBuyIn, longTokenPrice],
