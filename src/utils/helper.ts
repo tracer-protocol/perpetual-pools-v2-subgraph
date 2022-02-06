@@ -15,7 +15,7 @@ import { PoolCommitter, PoolKeeper } from "../../generated/templates"
 // this is not stored on chain anywhere so must be manually hardcoded per network
 
 // arb rinkeby
-const _poolSwapLibraryAddress = '0xB4BdF72F339133c31CEEa875c99E0AeDFe696c31'
+const _poolSwapLibraryAddress = '0x9258764393DFa035E4405Df6cDf73DDAF753371d'
 
 export const poolSwapLibraryAddress = Address.fromString(_poolSwapLibraryAddress);
 

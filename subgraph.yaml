@@ -6,9 +6,9 @@ dataSources:
     name: PoolFactory
     network: arbitrum-rinkeby
     source:
-      address: "0x2076D40bb991e73cAD559087b12784870b4b2211"
+      address: "0x560D4698E485EfF13552Ec8441eC78Ad4b3B33b8"
       abi: PoolFactory
-      startBlock: 9040434
+      startBlock: 9223548
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -94,4 +94,4 @@ templates:
         - event: ExecutedCommitsForInterval(indexed uint256,bytes16)
           handler: executedCommitsForInterval
         - event: Claim(indexed address)
-          handler: claim 
+          handler: claim
