@@ -61,7 +61,7 @@ export function createdCommit(event: CreateCommit): void {
 	}
 
 	if(typeRaw === SHORT_MINT || typeRaw === LONG_MINT) {
-		let applicableFee = floatingPointBytesToInt(event.params.mintingFee, pool.quoteTokenDecimals)
+		let applicableFee = floatingPointBytesToInt(event.params.mintingFee, pool.settlementTokenDecimals)
 		commit.applicableFee = applicableFee
 		commit.applicableFeeRaw = event.params.mintingFee
 	}
@@ -74,6 +74,9 @@ export function createdCommit(event: CreateCommit): void {
 	commit.blockNumber = event.block.number;
 	commit.txnHash = event.transaction.hash;
 	commit.isExecuted = false;
+	commit.updateIntervalId = event.params.appropriateUpdateIntervalId;
+	commit.fromAggregateBalance = event.params.fromAggregateBalance;
+	commit.payForClaim = event.params.payForClaim;
 	commit.updateIntervalId = event.params.appropriateUpdateIntervalId;
 
 	commit.pool = leveragedPoolByPoolCommitter.pool
@@ -145,12 +148,12 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 
 	const prices = poolCommitterInstance.priceHistory(event.params.updateIntervalId);
 
-	let burningFee = floatingPointBytesToInt(event.params.burningFee, poolEntity.quoteTokenDecimals)
+	let burningFee = floatingPointBytesToInt(event.params.burningFee, poolEntity.settlementTokenDecimals)
 	upkeep.burningFeeRaw = event.params.burningFee;
 	upkeep.burningFee = burningFee;
-	
-	const longTokenPrice = floatingPointBytesToInt(prices.value0, poolEntity.quoteTokenDecimals);
-	const shortTokenPrice = floatingPointBytesToInt(prices.value1, poolEntity.quoteTokenDecimals);
+
+	const longTokenPrice = floatingPointBytesToInt(prices.value0, poolEntity.settlementTokenDecimals);
+	const shortTokenPrice = floatingPointBytesToInt(prices.value1, poolEntity.settlementTokenDecimals);
 	upkeep.longTokenPrice = longTokenPrice;
 	upkeep.longTokenPriceRaw = prices.value0;
 	upkeep.shortTokenPrice = shortTokenPrice;
@@ -196,7 +199,7 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 				traders.push(commit.trader)
 			}
 		}
-		
+
 		for (let i = 0; i < traders.length; i++) {
 			let trader = traders[i]
 
@@ -220,14 +223,14 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 
 			if (aggregateBalances.shortTokens.equals(ZERO)) { // no more tokens
 				aggregateBalancesEntity.shortTokenAvgBuyIn = BigInt.fromI32(0)
-			} else if (shortTokenDiff.lt(ZERO)) { 
+			} else if (shortTokenDiff.lt(ZERO)) {
 				// user has minted more tokens balance has increased
 				shortTokenDiff = shortTokenDiff.abs()
 				aggregateBalancesEntity.shortTokenAvgBuyIn = calcWeightedAverage(
 					[aggregateBalancesEntity.shortTokenHolding, shortTokenDiff],
 					[aggregateBalancesEntity.shortTokenAvgBuyIn, shortTokenPrice],
 				)
-			} 
+			}
 			// if the user has burnt some amount but not all the token diff will be > 0
 			// and will fall through these checks
 

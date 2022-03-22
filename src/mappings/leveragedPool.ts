@@ -4,7 +4,7 @@ import {
 import { initPool } from "../utils/helper"
 import { PoolRebalance as PoolRebalanceEntity } from "../../generated/schema"
 
-// PoolInitialized(address indexed longToken, address indexed shortToken, address quoteToken, string poolName);
+// PoolInitialized(address indexed longToken, address indexed shortToken, address settlementToken, string poolName);
 export function poolInitialized(event: PoolInitialized): void {
   let pool = initPool(
     event.address,
@@ -18,7 +18,7 @@ export function poolInitialized(event: PoolInitialized): void {
   pool.save()
 }
 
-// PoolInitialized(address indexed longToken, address indexed shortToken, address quoteToken, string poolName);
+// PoolInitialized(address indexed longToken, address indexed shortToken, address settlementToken, string poolName);
 export function poolRebalance(event: PoolRebalance): void {
 
   const poolRebalanceId = event.address.toHexString()+'-'+event.block.number.toString();
