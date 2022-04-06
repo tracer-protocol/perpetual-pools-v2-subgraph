@@ -6,9 +6,9 @@ dataSources:
     name: PoolFactory
     network: arbitrum-rinkeby
     source:
-      address: "0x560D4698E485EfF13552Ec8441eC78Ad4b3B33b8"
+      address: "0x94Ec97D759F0696f46ef298Dea82E319BD2E55A8"
       abi: PoolFactory
-      startBlock: 9223548
+      startBlock: 10779831
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5

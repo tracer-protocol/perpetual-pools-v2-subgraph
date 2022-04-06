@@ -1,4 +1,4 @@
-import { UpkeepSuccess, KeeperPayment } from '../../generated/schema';
+import { UpkeepSuccess, KeeperPayment, Upkeep } from '../../generated/schema';
 import { UpkeepSuccessful, KeeperPaid } from '../../generated/templates/PoolKeeper/PoolKeeper';
 
 // event UpkeepSuccessful(address indexed pool, bytes data, int256 indexed startPrice, int256 indexed endPrice);
@@ -6,6 +6,14 @@ export function upkeepSuccessful(event: UpkeepSuccessful): void {
 	let upkeepSuccessId = event.params.pool.toHexString()+"-"+event.block.number.toString();
 
   let upkeepSuccess = new UpkeepSuccess(upkeepSuccessId);
+  let upkeep = Upkeep.load(upkeepSuccessId);
+
+  if(upkeep) {
+    upkeep.startPrice = event.params.startPrice;
+    upkeep.endPrice = event.params.endPrice;
+
+    upkeep.save();
+  }
 
   upkeepSuccess.startPrice = event.params.startPrice;
   upkeepSuccess.endPrice = event.params.endPrice;
