@@ -15,7 +15,7 @@ import { PoolCommitter, PoolKeeper } from "../../generated/templates"
 // this is not stored on chain anywhere so must be manually hardcoded per network
 
 // arb rinkeby
-const _poolSwapLibraryAddress = '0x9258764393DFa035E4405Df6cDf73DDAF753371d'
+const _poolSwapLibraryAddress = '0xe9a753735A79918bF8b7E8470D4932dd92Eaa78e'
 
 export const poolSwapLibraryAddress = Address.fromString(_poolSwapLibraryAddress);
 
@@ -33,7 +33,7 @@ export function initPool(
 	pool.name = contract.poolName()
 	pool.keeper = contract.keeper()
 	pool.committer = contract.poolCommitter()
-	pool.quoteToken = contract.quoteToken()
+	pool.settlementToken = contract.settlementToken()
 	pool.oracle = contract.oracleWrapper()
 	pool.feeReceiver = contract.feeAddress()
 	pool.frontRunningInterval = contract.frontRunningInterval()
@@ -52,8 +52,8 @@ export function initPool(
 		pool.shortToken = shortToken as Address
 	}
 
-	let quoteToken = ERC20.bind(contract.quoteToken())
-	pool.quoteTokenDecimals = BigInt.fromI32(quoteToken.decimals())
+	let settlementToken = ERC20.bind(contract.settlementToken())
+	pool.settlementTokenDecimals = BigInt.fromI32(settlementToken.decimals())
 
 	let leveragedPoolByPoolCommitter = new LeveragedPoolByPoolCommitter(pool.committer.toHexString());
 	leveragedPoolByPoolCommitter.pool = address;

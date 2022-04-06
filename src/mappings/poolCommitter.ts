@@ -1,6 +1,7 @@
 
 import {
 	Commit,
+	Claim,
 	UserAggregateBalance,
 	LeveragedPoolByPoolCommitter,
 	PendingCommitsByPoolCommitterAndInterval,
@@ -8,7 +9,7 @@ import {
 	LeveragedPool as LeveragedPoolEntity,
 } from '../../generated/schema';
 import {
-	Claim,
+	Claim as ClaimEvent,
 	CreateCommit,
 	ExecutedCommitsForInterval,
 	PoolCommitter,
@@ -61,7 +62,7 @@ export function createdCommit(event: CreateCommit): void {
 	}
 
 	if(typeRaw === SHORT_MINT || typeRaw === LONG_MINT) {
-		let applicableFee = floatingPointBytesToInt(event.params.mintingFee, pool.quoteTokenDecimals)
+		let applicableFee = floatingPointBytesToInt(event.params.mintingFee, new BigInt(0))
 		commit.applicableFee = applicableFee
 		commit.applicableFeeRaw = event.params.mintingFee
 	}
@@ -107,7 +108,7 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
   }
 
 	let poolId = leveragedPoolByPoolCommitter.pool.toHexString()
-	const upkeepId = poolId+'-'+event.params.updateIntervalId.toString();
+	const upkeepId = poolId+'-'+event.block.number.toString();
 
 	const poolEntity = LeveragedPoolEntity.load(poolId);
 
@@ -145,12 +146,12 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 
 	const prices = poolCommitterInstance.priceHistory(event.params.updateIntervalId);
 
-	let burningFee = floatingPointBytesToInt(event.params.burningFee, poolEntity.quoteTokenDecimals)
+	let burningFee = floatingPointBytesToInt(event.params.burningFee, new BigInt(0))
 	upkeep.burningFeeRaw = event.params.burningFee;
 	upkeep.burningFee = burningFee;
-	
-	const longTokenPrice = floatingPointBytesToInt(prices.value0, poolEntity.quoteTokenDecimals);
-	const shortTokenPrice = floatingPointBytesToInt(prices.value1, poolEntity.quoteTokenDecimals);
+
+	const longTokenPrice = floatingPointBytesToInt(prices.value0, poolEntity.settlementTokenDecimals);
+	const shortTokenPrice = floatingPointBytesToInt(prices.value1, poolEntity.settlementTokenDecimals);
 	upkeep.longTokenPrice = longTokenPrice;
 	upkeep.longTokenPriceRaw = prices.value0;
 	upkeep.shortTokenPrice = shortTokenPrice;
@@ -196,7 +197,7 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 				traders.push(commit.trader)
 			}
 		}
-		
+
 		for (let i = 0; i < traders.length; i++) {
 			let trader = traders[i]
 
@@ -220,14 +221,14 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 
 			if (aggregateBalances.shortTokens.equals(ZERO)) { // no more tokens
 				aggregateBalancesEntity.shortTokenAvgBuyIn = BigInt.fromI32(0)
-			} else if (shortTokenDiff.lt(ZERO)) { 
+			} else if (shortTokenDiff.lt(ZERO)) {
 				// user has minted more tokens balance has increased
 				shortTokenDiff = shortTokenDiff.abs()
 				aggregateBalancesEntity.shortTokenAvgBuyIn = calcWeightedAverage(
 					[aggregateBalancesEntity.shortTokenHolding, shortTokenDiff],
 					[aggregateBalancesEntity.shortTokenAvgBuyIn, shortTokenPrice],
 				)
-			} 
+			}
 			// if the user has burnt some amount but not all the token diff will be > 0
 			// and will fall through these checks
 
@@ -255,15 +256,13 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 	}
 }
 
-
-export function claim(event: Claim): void {
+export function claim(event: ClaimEvent): void {
 	let leveragedPoolByPoolCommitter = LeveragedPoolByPoolCommitter.load(event.address.toHexString());
 	if(!leveragedPoolByPoolCommitter) {
 		throw new Error('LeveragedPoolByPoolCommitter not set when handling claim')
 	}
 
 	let pool = LeveragedPoolEntity.load(leveragedPoolByPoolCommitter.pool.toHexString());
-
 
 	if(!pool) {
 		throw new Error('LeveragedPool not found when handling claim')
@@ -282,4 +281,15 @@ export function claim(event: Claim): void {
 
 
 	aggregateBalance.save();
+
+	// store claim event
+	const claim = new Claim(event.transaction.hash.toHexString());
+
+	claim.blockNumber = event.block.number;
+	claim.timestamp = event.block.timestamp;
+	claim.trader = event.params.user;
+	claim.pool = pool.id;
+	claim.poolAddress = pool.id;
+
+	claim.save();
 }

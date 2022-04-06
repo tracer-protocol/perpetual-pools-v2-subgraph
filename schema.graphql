@@ -65,6 +65,15 @@ type Commit @entity {
   upkeep: Upkeep # poolAddress-upkeepIntervalId
 }
 
+type Claim @entity {
+  id: ID! # transaction hash
+  trader: Bytes!
+  pool: LeveragedPool!
+  poolAddress: String!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
 type UserAggregateBalance @entity {
   id: ID! # pool-user
   pool: LeveragedPool!
