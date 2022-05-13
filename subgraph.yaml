@@ -6,9 +6,9 @@ dataSources:
     name: PoolFactory
     network: arbitrum-rinkeby
     source:
-      address: "0x94Ec97D759F0696f46ef298Dea82E319BD2E55A8"
+      address: "0xC2C3e9182622Ea52a011803de26f15e3DB2C376c"
       abi: PoolFactory
-      startBlock: 10779831
+      startBlock: 11857696
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -89,7 +89,7 @@ templates:
         - name: PoolSwapLibrary
           file: ./abis/PoolSwapLibrary.json
       eventHandlers:
-        - event: CreateCommit(indexed address,indexed uint256,indexed uint8,uint256,bytes16)
+        - event: CreateCommit(indexed address,indexed uint256,indexed uint8,uint256,bool,bool,bytes16)
           handler: createdCommit
         - event: ExecutedCommitsForInterval(indexed uint256,bytes16)
           handler: executedCommitsForInterval

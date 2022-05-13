@@ -2,7 +2,6 @@
 import {
 	Commit,
 	Claim,
-	UserAggregateBalance,
 	LeveragedPoolByPoolCommitter,
 	PendingCommitsByPoolCommitterAndInterval,
 	Upkeep,
@@ -16,8 +15,8 @@ import {
 } from '../../generated/templates/PoolCommitter/PoolCommitter';
 import { LeveragedPool } from '../../generated/templates/PoolCommitter/LeveragedPool';
 import { ERC20 } from '../../generated/templates/PoolCommitter/ERC20';
-import { Address, store, BigInt, Bytes } from '@graphprotocol/graph-ts';
-import { calcWeightedAverage, floatingPointBytesToInt, initUserAggregateBalance } from '../utils/helper'
+import { Address, store, BigInt } from '@graphprotocol/graph-ts';
+import { floatingPointBytesToInt } from '../utils/helper'
 
 let SHORT_MINT = 0;
 let SHORT_BURN = 1;
@@ -76,6 +75,8 @@ export function createdCommit(event: CreateCommit): void {
 	commit.txnHash = event.transaction.hash;
 	commit.isExecuted = false;
 	commit.updateIntervalId = event.params.appropriateUpdateIntervalId;
+	commit.fromAggregateBalance = event.params.fromAggregateBalance;
+	commit.payForClaim = event.params.payForClaim;
 
 	commit.pool = leveragedPoolByPoolCommitter.pool
 
@@ -172,8 +173,6 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 
 	// if there is no entry, it means that no commits were executed in this interval
 	if(relevantPendingCommits) {
-		const traders: Array<Bytes> = [];
-
 		for(let i = 0; i < relevantPendingCommits.commitIds.length; ++i) {
 			let commitId = relevantPendingCommits.commitIds[i];
 			let commit = Commit.load(commitId);
@@ -192,62 +191,6 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 				commit.applicableFeeRaw = event.params.burningFee
 			}
 			commit.save();
-
-			if (!traders.includes(commit.trader)) {
-				traders.push(commit.trader)
-			}
-		}
-
-		for (let i = 0; i < traders.length; i++) {
-			let trader = traders[i]
-
-			const aggregateBalanceId = poolId+'-'+trader.toHexString();
-			let aggregateBalancesEntity = UserAggregateBalance.load(aggregateBalanceId);
-
-			if (!aggregateBalancesEntity) {
-				aggregateBalancesEntity = initUserAggregateBalance(poolId, trader)
-			}
-			const traderAddress = Address.fromString(trader.toHexString());
-			// TODO this can be back calculated commit amount and price
-			// would need to summate token amounts
-			// burnTokenDiff = commitAmount / price
-			// mintTokenDiff = commitAmount * price
-			const aggregateBalances = poolCommitterInstance.getAggregateBalance(traderAddress);
-
-			let shortTokenDiff = aggregateBalancesEntity.shortTokenHolding.minus(aggregateBalances.shortTokens);
-			let longTokenDiff = aggregateBalancesEntity.longTokenHolding.minus(aggregateBalances.longTokens);
-
-			const ZERO = BigInt.fromI32(0);
-
-			if (aggregateBalances.shortTokens.equals(ZERO)) { // no more tokens
-				aggregateBalancesEntity.shortTokenAvgBuyIn = BigInt.fromI32(0)
-			} else if (shortTokenDiff.lt(ZERO)) {
-				// user has minted more tokens balance has increased
-				shortTokenDiff = shortTokenDiff.abs()
-				aggregateBalancesEntity.shortTokenAvgBuyIn = calcWeightedAverage(
-					[aggregateBalancesEntity.shortTokenHolding, shortTokenDiff],
-					[aggregateBalancesEntity.shortTokenAvgBuyIn, shortTokenPrice],
-				)
-			}
-			// if the user has burnt some amount but not all the token diff will be > 0
-			// and will fall through these checks
-
-			if (aggregateBalances.longTokens.equals(ZERO)) { // no more tokens
-				aggregateBalancesEntity.longTokenAvgBuyIn = BigInt.fromI32(0)
-			} else if (longTokenDiff.lt(ZERO)) {
-				// user has minted more tokens balance has increased
-				longTokenDiff = longTokenDiff.abs();
-				aggregateBalancesEntity.longTokenAvgBuyIn = calcWeightedAverage(
-					[aggregateBalancesEntity.longTokenHolding, longTokenDiff],
-					[aggregateBalancesEntity.longTokenAvgBuyIn, longTokenPrice],
-				)
-			}
-
-			aggregateBalancesEntity.longTokenHolding = aggregateBalances.longTokens;
-			aggregateBalancesEntity.shortTokenHolding = aggregateBalances.shortTokens;
-			aggregateBalancesEntity.settlementTokenHolding = aggregateBalances.settlementTokens;
-
-			aggregateBalancesEntity.save();
 		}
 
 
@@ -267,20 +210,6 @@ export function claim(event: ClaimEvent): void {
 	if(!pool) {
 		throw new Error('LeveragedPool not found when handling claim')
 	}
-
-	const aggregateBalanceId = pool.id.toString()+'-'+event.params.user.toHexString();
-	let aggregateBalance = UserAggregateBalance.load(aggregateBalanceId);
-
-	if (!aggregateBalance) {
-		aggregateBalance = initUserAggregateBalance(pool.id, event.params.user);
-	}
-
-	aggregateBalance.longTokenHolding = BigInt.fromI32(0);
-	aggregateBalance.shortTokenHolding = BigInt.fromI32(0);
-	aggregateBalance.settlementTokenHolding = BigInt.fromI32(0);
-
-
-	aggregateBalance.save();
 
 	// store claim event
 	const claim = new Claim(event.transaction.hash.toHexString());

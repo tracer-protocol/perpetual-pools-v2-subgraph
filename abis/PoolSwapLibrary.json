@@ -3,42 +3,12 @@
       "inputs":[
 
       ],
-      "name":"MAX_BURNING_FEE",
-      "outputs":[
-         {
-            "internalType":"bytes16",
-            "name":"",
-            "type":"bytes16"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
-      "inputs":[
-
-      ],
       "name":"MAX_DECIMALS",
       "outputs":[
          {
             "internalType":"uint256",
             "name":"",
             "type":"uint256"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
-      "inputs":[
-
-      ],
-      "name":"MAX_MINTING_FEE",
-      "outputs":[
-         {
-            "internalType":"bytes16",
-            "name":"",
-            "type":"bytes16"
          }
       ],
       "stateMutability":"view",
@@ -140,44 +110,37 @@
    {
       "inputs":[
          {
-            "components":[
-               {
-                  "internalType":"int256",
-                  "name":"oldPrice",
-                  "type":"int256"
-               },
-               {
-                  "internalType":"int256",
-                  "name":"newPrice",
-                  "type":"int256"
-               },
-               {
-                  "internalType":"uint256",
-                  "name":"longBalance",
-                  "type":"uint256"
-               },
-               {
-                  "internalType":"uint256",
-                  "name":"shortBalance",
-                  "type":"uint256"
-               },
-               {
-                  "internalType":"bytes16",
-                  "name":"leverageAmount",
-                  "type":"bytes16"
-               },
-               {
-                  "internalType":"bytes16",
-                  "name":"fee",
-                  "type":"bytes16"
-               }
-            ],
-            "internalType":"struct PoolSwapLibrary.PriceChangeData",
-            "name":"priceChange",
-            "type":"tuple"
+            "internalType":"uint256",
+            "name":"longBalance",
+            "type":"uint256"
+         },
+         {
+            "internalType":"uint256",
+            "name":"shortBalance",
+            "type":"uint256"
+         },
+         {
+            "internalType":"bytes16",
+            "name":"leverageAmount",
+            "type":"bytes16"
+         },
+         {
+            "internalType":"int256",
+            "name":"oldPrice",
+            "type":"int256"
+         },
+         {
+            "internalType":"int256",
+            "name":"newPrice",
+            "type":"int256"
+         },
+         {
+            "internalType":"bytes16",
+            "name":"fee",
+            "type":"bytes16"
          }
       ],
-      "name":"calculatePriceChange",
+      "name":"calculateValueTransfer",
       "outputs":[
          {
             "internalType":"uint256",
@@ -485,40 +448,6 @@
    {
       "inputs":[
          {
-            "internalType":"bytes16",
-            "name":"price",
-            "type":"bytes16"
-         },
-         {
-            "internalType":"bytes16",
-            "name":"oppositePrice",
-            "type":"bytes16"
-         },
-         {
-            "internalType":"uint256",
-            "name":"amount",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
-            "name":"amountBurnedInstantMint",
-            "type":"uint256"
-         }
-      ],
-      "name":"getMintWithBurns",
-      "outputs":[
-         {
-            "internalType":"uint256",
-            "name":"",
-            "type":"uint256"
-         }
-      ],
-      "stateMutability":"pure",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         {
             "internalType":"uint256",
             "name":"sideBalance",
             "type":"uint256"
@@ -579,6 +508,11 @@
                   "type":"bytes16"
                },
                {
+                  "internalType":"bytes16",
+                  "name":"mintingFeeRate",
+                  "type":"bytes16"
+               },
+               {
                   "internalType":"uint256",
                   "name":"currentUpdateIntervalId",
                   "type":"uint256"
@@ -632,29 +566,36 @@
       "name":"getUpdatedAggregateBalance",
       "outputs":[
          {
-            "internalType":"uint256",
-            "name":"_newLongTokens",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
-            "name":"_newShortTokens",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
-            "name":"_longBurnFee",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
-            "name":"_shortBurnFee",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
-            "name":"_newSettlementTokens",
-            "type":"uint256"
+            "components":[
+               {
+                  "internalType":"uint256",
+                  "name":"_newLongTokens",
+                  "type":"uint256"
+               },
+               {
+                  "internalType":"uint256",
+                  "name":"_newShortTokens",
+                  "type":"uint256"
+               },
+               {
+                  "internalType":"uint256",
+                  "name":"_longSettlementFee",
+                  "type":"uint256"
+               },
+               {
+                  "internalType":"uint256",
+                  "name":"_shortSettlementFee",
+                  "type":"uint256"
+               },
+               {
+                  "internalType":"uint256",
+                  "name":"_newSettlementTokens",
+                  "type":"uint256"
+               }
+            ],
+            "internalType":"struct PoolSwapLibrary.UpdateResult",
+            "name":"",
+            "type":"tuple"
          }
       ],
       "stateMutability":"pure",
@@ -723,6 +664,30 @@
             "internalType":"bool",
             "name":"",
             "type":"bool"
+         }
+      ],
+      "stateMutability":"pure",
+      "type":"function"
+   },
+   {
+      "inputs":[
+         {
+            "internalType":"bytes16",
+            "name":"feeRate",
+            "type":"bytes16"
+         },
+         {
+            "internalType":"uint256",
+            "name":"amount",
+            "type":"uint256"
+         }
+      ],
+      "name":"mintingOrBurningFee",
+      "outputs":[
+         {
+            "internalType":"uint256",
+            "name":"",
+            "type":"uint256"
          }
       ],
       "stateMutability":"pure",
@@ -800,6 +765,50 @@
             "internalType":"bytes16",
             "name":"",
             "type":"bytes16"
+         }
+      ],
+      "stateMutability":"pure",
+      "type":"function"
+   },
+   {
+      "inputs":[
+         {
+            "internalType":"uint256",
+            "name":"amount",
+            "type":"uint256"
+         },
+         {
+            "internalType":"bytes16",
+            "name":"burnPrice",
+            "type":"bytes16"
+         },
+         {
+            "internalType":"bytes16",
+            "name":"burningFee",
+            "type":"bytes16"
+         },
+         {
+            "internalType":"bytes16",
+            "name":"mintingFee",
+            "type":"bytes16"
+         }
+      ],
+      "name":"processBurnInstantMintCommit",
+      "outputs":[
+         {
+            "internalType":"uint256",
+            "name":"",
+            "type":"uint256"
+         },
+         {
+            "internalType":"uint256",
+            "name":"",
+            "type":"uint256"
+         },
+         {
+            "internalType":"uint256",
+            "name":"",
+            "type":"uint256"
          }
       ],
       "stateMutability":"pure",

@@ -5,8 +5,8 @@ type LeveragedPool @entity {
   committer: Bytes! # address
   longToken: Bytes! # address
   shortToken: Bytes! # address
-  quoteToken: Bytes! # address
-  quoteTokenDecimals: BigInt! # address
+  settlementToken: Bytes! # address
+  settlementTokenDecimals: BigInt! # address
   oracle: Bytes! # address
   feeReceiver: Bytes! # address
   frontRunningInterval: BigInt!
@@ -62,6 +62,8 @@ type Commit @entity {
   applicableFee: BigInt
   applicableFeeRaw: Bytes
   isExecuted: Boolean
+  fromAggregateBalance: Boolean
+  payForClaim: Boolean
   upkeep: Upkeep # poolAddress-upkeepIntervalId
 }
 
@@ -72,18 +74,6 @@ type Claim @entity {
   poolAddress: String!
   timestamp: BigInt!
   blockNumber: BigInt!
-}
-
-type UserAggregateBalance @entity {
-  id: ID! # pool-user
-  pool: LeveragedPool!
-  trader: Bytes!
-  longTokenHolding: BigInt!
-  shortTokenHolding: BigInt!
-  settlementTokenHolding: BigInt!
-  longTokenAvgBuyIn: BigInt!
-  shortTokenAvgBuyIn: BigInt!
-
 }
 
 type PoolRebalance @entity {
