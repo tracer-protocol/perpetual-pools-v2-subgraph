@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: OldPoolFactory
-    network: arbitrum-one
+    network: arbitrum-rinkeby
     source:
-      address: "0xdabffa47e509659FEDE5deC5e22CFFb9Cb9040b4"
+      address: "0x017bc41f34D8c7C7545E908896B25Bb445a2159B"
       abi: PoolFactory
-      startBlock: 12387469
+      startBlock: 12072487
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -24,11 +24,11 @@ dataSources:
       file: ./src/mappings/poolFactory.ts
   - kind: ethereum/contract
     name: PoolFactory
-    network: arbitrum-one
+    network: arbitrum-rinkeby
     source:
-      address: "0x3Feafee6b12C8d2E58c5B118e54C09F9273c6124"
+      address: "0x0896Fd59b574f536751c82B8Dd9fd9466af009aC"
       abi: PoolFactory
-      startBlock: 13387522
+      startBlock: 12206749
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -45,7 +45,7 @@ dataSources:
 templates:
   - name: LeveragedPool
     kind: ethereum/contract
-    network: arbitrum-one
+    network: arbitrum-rinkeby
     source:
       abi: LeveragedPool
     mapping:
@@ -69,7 +69,7 @@ templates:
           handler: poolRebalance
   - name: PoolKeeper
     kind: ethereum/contract
-    network: arbitrum-one
+    network: arbitrum-rinkeby
     source:
       abi: PoolKeeper
     mapping:
@@ -91,7 +91,7 @@ templates:
           handler: upkeepSuccessful
   - name: PoolCommitter
     kind: ethereum/contract
-    network: arbitrum-one
+    network: arbitrum-rinkeby
     source:
       abi: PoolCommitter
     mapping:

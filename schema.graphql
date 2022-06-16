@@ -13,6 +13,7 @@ type LeveragedPool @entity {
   tradingFee: Bytes!
   updateInterval: BigInt!
   lastPriceTimestamp: BigInt!
+  leverage: BigInt!
   timestamp: BigInt!
   blockNumber: BigInt!
   txnHash: String!

@@ -14,7 +14,10 @@ import { PoolCommitter, PoolKeeper } from "../../generated/templates"
 // this is not stored on chain anywhere so must be manually hardcoded per network
 
 // arb rinkeby
-const _poolSwapLibraryAddress = '0xCB27C3813D75918f8B764143Cf3717955A5D43b8'
+// const _poolSwapLibraryAddress = '0xCB27C3813D75918f8B764143Cf3717955A5D43b8'
+
+// arb one
+const _poolSwapLibraryAddress = "0x71dBdA135d5A9F64306fd22e00E59a5fEdFB86F9"
 
 export const poolSwapLibraryAddress = Address.fromString(_poolSwapLibraryAddress);
 
@@ -43,6 +46,9 @@ export function initPool(
 	pool.blockNumber = blockNumber
 	pool.txnHash = txnHash
 	pool.paused = contract.paused()
+
+	const rawLeverageAmount = contract.leverageAmount();
+	pool.leverage = floatingPointBytesToInt(rawLeverageAmount, new BigInt(0))
 
 	if(longToken) {
 		pool.longToken = longToken as Address
