@@ -62,6 +62,8 @@ type Commit @entity {
   amount: BigInt!
   applicableFee: BigInt
   applicableFeeRaw: Bytes
+  mintingFee: BigInt
+  mintingFeeRaw: Bytes
   isExecuted: Boolean
   fromAggregateBalance: Boolean
   payForClaim: Boolean
