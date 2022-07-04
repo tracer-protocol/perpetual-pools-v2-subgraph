@@ -4,7 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ scaredibis/tracer-pools-v2-arbitrum-rinkeby",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ tracer-protocol/perpetual-pools-v2-arbitrum-rinkeby",
     "create-local": "graph create --node http://localhost:8020/ perpetual-pools-v2",
     "remove-local": "graph remove --node http://localhost:8020/ perpetual-pools-v2",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 perpetual-pools-v2"

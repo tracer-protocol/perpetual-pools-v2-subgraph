@@ -156,6 +156,19 @@
    {
       "anonymous":false,
       "inputs":[
+         {
+            "indexed":true,
+            "internalType":"address",
+            "name":"newPool",
+            "type":"address"
+         }
+      ],
+      "name":"PoolChanged",
+      "type":"event"
+   },
+   {
+      "anonymous":false,
+      "inputs":[
 
       ],
       "name":"Unpaused",
@@ -180,12 +193,57 @@
       "inputs":[
 
       ],
+      "name":"MAX_BURNING_FEE",
+      "outputs":[
+         {
+            "internalType":"bytes16",
+            "name":"",
+            "type":"bytes16"
+         }
+      ],
+      "stateMutability":"view",
+      "type":"function"
+   },
+   {
+      "inputs":[
+
+      ],
+      "name":"MAX_CHANGE_INTERVAL",
+      "outputs":[
+         {
+            "internalType":"bytes16",
+            "name":"",
+            "type":"bytes16"
+         }
+      ],
+      "stateMutability":"view",
+      "type":"function"
+   },
+   {
+      "inputs":[
+
+      ],
       "name":"MAX_ITERATIONS",
       "outputs":[
          {
             "internalType":"uint8",
             "name":"",
             "type":"uint8"
+         }
+      ],
+      "stateMutability":"view",
+      "type":"function"
+   },
+   {
+      "inputs":[
+
+      ],
+      "name":"MAX_MINTING_FEE",
+      "outputs":[
+         {
+            "internalType":"bytes16",
+            "name":"",
+            "type":"bytes16"
          }
       ],
       "stateMutability":"view",
@@ -548,6 +606,82 @@
    {
       "inputs":[
          {
+            "internalType":"enum IPoolCommitter.CommitType",
+            "name":"t",
+            "type":"uint8"
+         }
+      ],
+      "name":"isBurn",
+      "outputs":[
+         {
+            "internalType":"bool",
+            "name":"",
+            "type":"bool"
+         }
+      ],
+      "stateMutability":"pure",
+      "type":"function"
+   },
+   {
+      "inputs":[
+         {
+            "internalType":"enum IPoolCommitter.CommitType",
+            "name":"t",
+            "type":"uint8"
+         }
+      ],
+      "name":"isLong",
+      "outputs":[
+         {
+            "internalType":"bool",
+            "name":"",
+            "type":"bool"
+         }
+      ],
+      "stateMutability":"pure",
+      "type":"function"
+   },
+   {
+      "inputs":[
+         {
+            "internalType":"enum IPoolCommitter.CommitType",
+            "name":"t",
+            "type":"uint8"
+         }
+      ],
+      "name":"isMint",
+      "outputs":[
+         {
+            "internalType":"bool",
+            "name":"",
+            "type":"bool"
+         }
+      ],
+      "stateMutability":"pure",
+      "type":"function"
+   },
+   {
+      "inputs":[
+         {
+            "internalType":"enum IPoolCommitter.CommitType",
+            "name":"t",
+            "type":"uint8"
+         }
+      ],
+      "name":"isShort",
+      "outputs":[
+         {
+            "internalType":"bool",
+            "name":"",
+            "type":"bool"
+         }
+      ],
+      "stateMutability":"pure",
+      "type":"function"
+   },
+   {
+      "inputs":[
+         {
             "internalType":"address",
             "name":"",
             "type":"address"
@@ -822,11 +956,6 @@
             "internalType":"uint256",
             "name":"longBurnShortMintPoolTokens",
             "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
-            "name":"updateIntervalId",
-            "type":"uint256"
          }
       ],
       "stateMutability":"view",
@@ -953,11 +1082,6 @@
          },
          {
             "internalType":"uint256",
-            "name":"balanceLongBurnPoolTokens",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
             "name":"shortMintSettlement",
             "type":"uint256"
          },
@@ -968,27 +1092,12 @@
          },
          {
             "internalType":"uint256",
-            "name":"balanceShortBurnPoolTokens",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
             "name":"shortBurnLongMintPoolTokens",
             "type":"uint256"
          },
          {
             "internalType":"uint256",
-            "name":"balanceShortBurnMintPoolTokens",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
             "name":"longBurnShortMintPoolTokens",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
-            "name":"balanceLongBurnMintPoolTokens",
             "type":"uint256"
          },
          {

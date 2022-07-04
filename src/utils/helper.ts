@@ -5,7 +5,6 @@ import { PoolSwapLibrary } from "../../generated/templates/PoolCommitter/PoolSwa
 import {
 	LeveragedPool as LeveragedPoolEntity,
 	LeveragedPoolByPoolCommitter,
-	UserAggregateBalance,
 	CachedConvertedBytesToUint
 } from "../../generated/schema"
 
@@ -15,7 +14,10 @@ import { PoolCommitter, PoolKeeper } from "../../generated/templates"
 // this is not stored on chain anywhere so must be manually hardcoded per network
 
 // arb rinkeby
-const _poolSwapLibraryAddress = '0xe9a753735A79918bF8b7E8470D4932dd92Eaa78e'
+// const _poolSwapLibraryAddress = '0xCB27C3813D75918f8B764143Cf3717955A5D43b8'
+
+// arb one
+const _poolSwapLibraryAddress = "0x71dBdA135d5A9F64306fd22e00E59a5fEdFB86F9"
 
 export const poolSwapLibraryAddress = Address.fromString(_poolSwapLibraryAddress);
 
@@ -45,6 +47,9 @@ export function initPool(
 	pool.txnHash = txnHash
 	pool.paused = contract.paused()
 
+	const rawLeverageAmount = contract.leverageAmount();
+	pool.leverage = floatingPointBytesToInt(rawLeverageAmount, new BigInt(0))
+
 	if(longToken) {
 		pool.longToken = longToken as Address
 	}
@@ -64,23 +69,6 @@ export function initPool(
 	PoolCommitter.create(contract.poolCommitter())
 
 	return pool;
-}
-
-export function initUserAggregateBalance(
-	pool: string,
-	user: Bytes
-): UserAggregateBalance {
-	const aggregateBalanceId = pool + "-" + user.toHexString();
-	const aggregateBalance = new UserAggregateBalance(aggregateBalanceId);
-	aggregateBalance.pool = pool;
-	aggregateBalance.trader = user;
-	aggregateBalance.longTokenHolding = BigInt.fromI32(0);
-	aggregateBalance.shortTokenHolding = BigInt.fromI32(0);
-	aggregateBalance.settlementTokenHolding = BigInt.fromI32(0);
-	aggregateBalance.longTokenAvgBuyIn = BigInt.fromI32(0);
-	aggregateBalance.shortTokenAvgBuyIn = BigInt.fromI32(0);
-
-	return aggregateBalance;
 }
 
 export function fromWad(wadValue: BigInt, decimals: BigInt): BigDecimal {
