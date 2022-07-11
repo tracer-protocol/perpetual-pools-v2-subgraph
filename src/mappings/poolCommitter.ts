@@ -171,6 +171,12 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
   upkeep.longBalance = balances.value1;
   upkeep.longTokenSupply = longTokenInstance.totalSupply();
   upkeep.shortTokenSupply = shortTokenInstance.totalSupply();
+  upkeep.effectiveLongTokenSupply = longTokenInstance
+    .totalSupply()
+    .plus(poolCommitterInstance.pendingLongBurnPoolTokens());
+  upkeep.effectiveShortTokenSupply = shortTokenInstance
+    .totalSupply()
+    .plus(poolCommitterInstance.pendingShortBurnPoolTokens());
 
   upkeep.save();
 
