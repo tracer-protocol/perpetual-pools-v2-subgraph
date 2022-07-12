@@ -39,6 +39,8 @@ type Upkeep @entity {
   shortBalance: BigInt!
   longTokenSupply: BigInt!
   shortTokenSupply: BigInt!
+  effectiveLongTokenSupply: BigInt!
+  effectiveShortTokenSupply: BigInt!
   commits: [Commit!]! @derivedFrom(field: "upkeep")
   longTokenPrice: BigInt!
   longTokenPriceRaw: Bytes!
