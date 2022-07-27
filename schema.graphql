@@ -26,7 +26,7 @@ type PoolFactory @entity {
 }
 
 type Upkeep @entity {
-  id: ID! # poolAddress-upkeepIntervalId
+  id: ID! # poolAddress-blockNumber
   pool: LeveragedPool!
   poolAddress: Bytes! # address
   txnHash: Bytes
@@ -69,7 +69,7 @@ type Commit @entity {
   isExecuted: Boolean
   fromAggregateBalance: Boolean
   payForClaim: Boolean
-  upkeep: Upkeep # poolAddress-upkeepIntervalId
+  upkeep: Upkeep # poolAddress-blockNumber
 }
 
 type Claim @entity {
@@ -119,6 +119,11 @@ type LeveragedPoolByPoolCommitter @entity {
 type PendingCommitsByPoolCommitterAndInterval @entity {
   id: ID! # poolCommitterAddress-updateIntervalId
   commitIds: [String!]!
+}
+
+type PendingUpkeepsWithNoTokenPrice @entity {
+  id: ID! # poolId
+  upkeepIds: [String!]! # poolId-blockNumber[]
 }
 
 type CachedConvertedBytesToUint @entity {
