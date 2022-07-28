@@ -15,7 +15,7 @@ import {
 } from '../../generated/templates/PoolCommitter/PoolCommitter';
 import { LeveragedPool } from '../../generated/templates/PoolCommitter/LeveragedPool';
 import { ERC20 } from '../../generated/templates/PoolCommitter/ERC20';
-import { Address, store, BigInt } from '@graphprotocol/graph-ts';
+import { Address, store, BigInt, ByteArray } from '@graphprotocol/graph-ts';
 import { floatingPointBytesToInt } from '../utils/helper';
 
 let SHORT_MINT = 0;
@@ -199,7 +199,7 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
   const prices = poolCommitterInstance.priceHistory(event.params.updateIntervalId);
 
   // Add to a pending array to do deferred checking if token price = 0
-  if (prices.value0.equals(ZERO_BYTE_ARRAY) || prices.toMap.equals(ZERO_BYTE_ARRAY)) {
+  if (prices.value0.equals(ZERO_BYTE_ARRAY) || prices.value1.equals(ZERO_BYTE_ARRAY)) {
     let pendingUpkeepWithNoTokenPrice = PendingUpkeepsWithNoTokenPrice.load(poolId);
 
     if (!pendingUpkeepWithNoTokenPrice) {
