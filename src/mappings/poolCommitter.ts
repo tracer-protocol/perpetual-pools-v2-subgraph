@@ -5,6 +5,7 @@ import {
   PendingCommitsByPoolCommitterAndInterval,
   Upkeep,
   LeveragedPool as LeveragedPoolEntity,
+  PendingUpkeepsWithNoTokenPrice
 } from '../../generated/schema';
 import {
   Claim as ClaimEvent,
@@ -148,6 +149,7 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
   const shortTokenInstance = ERC20.bind(shortTokenAddress);
   const poolCommitterInstance = PoolCommitter.bind(event.address);
   const poolInstance = LeveragedPool.bind(poolAddress);
+  const ZERO_BYTE_ARRAY = ByteArray.fromHexString('0x00000000000000000000000000000000');
 
   // check deferred upkeeps
   const relevantPendingUpkeeps = PendingUpkeepsWithNoTokenPrice.load(poolId);
@@ -163,19 +165,20 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
       }
 
       const prices = poolCommitterInstance.priceHistory(upkeep.upkeepIntervalId);
-      const longTokenPrice = floatingPointBytesToInt(
-        prices.value0,
-        poolEntity.settlementTokenDecimals
-      );
-      const shortTokenPrice = floatingPointBytesToInt(
-        prices.value1,
-        poolEntity.settlementTokenDecimals
-      );
 
-      if (longTokenPrice.equals(BigInt.zero()) || shortTokenPrice.equals(BigInt.zero())) {
+      if (prices.value0.equals(ZERO_BYTE_ARRAY) || prices.value1.equals(ZERO_BYTE_ARRAY)) {
         // Token price still 0
         upkeepIdsWithNoTokenPriceStill.push(upkeepId);
       } else {
+        const longTokenPrice = floatingPointBytesToInt(
+          prices.value0,
+          poolEntity.settlementTokenDecimals
+        );
+        const shortTokenPrice = floatingPointBytesToInt(
+          prices.value1,
+          poolEntity.settlementTokenDecimals
+        );
+
         upkeep.longTokenPrice = longTokenPrice;
         upkeep.longTokenPriceRaw = prices.value0;
         upkeep.shortTokenPrice = shortTokenPrice;
@@ -195,18 +198,8 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
 
   const prices = poolCommitterInstance.priceHistory(event.params.updateIntervalId);
 
-  let burningFee = floatingPointBytesToInt(event.params.burningFee, new BigInt(0));
-  upkeep.burningFeeRaw = event.params.burningFee;
-  upkeep.burningFee = burningFee;
-
-  const longTokenPrice = floatingPointBytesToInt(prices.value0, poolEntity.settlementTokenDecimals);
-  const shortTokenPrice = floatingPointBytesToInt(
-    prices.value1,
-    poolEntity.settlementTokenDecimals
-  );
-
   // Add to a pending array to do deferred checking if token price = 0
-  if (longTokenPrice.equals(BigInt.zero()) || shortTokenPrice.equals(BigInt.zero())) {
+  if (prices.value0.equals(ZERO_BYTE_ARRAY) || prices.toMap.equals(ZERO_BYTE_ARRAY)) {
     let pendingUpkeepWithNoTokenPrice = PendingUpkeepsWithNoTokenPrice.load(poolId);
 
     if (!pendingUpkeepWithNoTokenPrice) {
@@ -221,6 +214,16 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
     pendingUpkeepWithNoTokenPrice.upkeepIds = upkeepIds;
     pendingUpkeepWithNoTokenPrice.save();
   }
+
+  let burningFee = floatingPointBytesToInt(event.params.burningFee, new BigInt(0));
+  upkeep.burningFeeRaw = event.params.burningFee;
+  upkeep.burningFee = burningFee;
+
+  const longTokenPrice = floatingPointBytesToInt(prices.value0, poolEntity.settlementTokenDecimals);
+  const shortTokenPrice = floatingPointBytesToInt(
+    prices.value1,
+    poolEntity.settlementTokenDecimals
+  );
 
   upkeep.longTokenPrice = longTokenPrice;
   upkeep.longTokenPriceRaw = prices.value0;
