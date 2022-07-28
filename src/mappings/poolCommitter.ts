@@ -5,6 +5,7 @@ import {
   PendingCommitsByPoolCommitterAndInterval,
   Upkeep,
   LeveragedPool as LeveragedPoolEntity,
+  PendingUpkeepsWithNoTokenPrice
 } from '../../generated/schema';
 import {
   Claim as ClaimEvent,
@@ -14,7 +15,7 @@ import {
 } from '../../generated/templates/PoolCommitter/PoolCommitter';
 import { LeveragedPool } from '../../generated/templates/PoolCommitter/LeveragedPool';
 import { ERC20 } from '../../generated/templates/PoolCommitter/ERC20';
-import { Address, store, BigInt } from '@graphprotocol/graph-ts';
+import { Address, store, BigInt, ByteArray } from '@graphprotocol/graph-ts';
 import { floatingPointBytesToInt } from '../utils/helper';
 
 let SHORT_MINT = 0;
@@ -148,8 +149,71 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
   const shortTokenInstance = ERC20.bind(shortTokenAddress);
   const poolCommitterInstance = PoolCommitter.bind(event.address);
   const poolInstance = LeveragedPool.bind(poolAddress);
+  const ZERO_BYTE_ARRAY = ByteArray.fromHexString('0x00000000000000000000000000000000');
+
+  // check deferred upkeeps
+  const relevantPendingUpkeeps = PendingUpkeepsWithNoTokenPrice.load(poolId);
+  if (relevantPendingUpkeeps) {
+    let upkeepIdsWithNoTokenPriceStill = [];
+
+    for (let i = 0; i < relevantPendingUpkeeps.upkeepIds.length; ++i) {
+      const upkeepId = relevantPendingUpkeeps.upkeepIds[i];
+      let upkeep = Upkeep.load(upkeepId);
+
+      if (!upkeep) {
+        throw new Error('Upkeep entity not found for pending upkeep id ' + upkeepId);
+      }
+
+      const prices = poolCommitterInstance.priceHistory(upkeep.upkeepIntervalId);
+
+      if (prices.value0.equals(ZERO_BYTE_ARRAY) || prices.value1.equals(ZERO_BYTE_ARRAY)) {
+        // Token price still 0
+        upkeepIdsWithNoTokenPriceStill.push(upkeepId);
+      } else {
+        const longTokenPrice = floatingPointBytesToInt(
+          prices.value0,
+          poolEntity.settlementTokenDecimals
+        );
+        const shortTokenPrice = floatingPointBytesToInt(
+          prices.value1,
+          poolEntity.settlementTokenDecimals
+        );
+
+        upkeep.longTokenPrice = longTokenPrice;
+        upkeep.longTokenPriceRaw = prices.value0;
+        upkeep.shortTokenPrice = shortTokenPrice;
+        upkeep.shortTokenPriceRaw = prices.value1;
+        upkeep.save();
+      }
+    }
+
+    if (upkeepIdsWithNoTokenPriceStill.length === 0) {
+      // remove the pending upkeeps from the store
+      store.remove('PendingUpkeepsWithNoTokenPrice', poolId);
+    } else {
+      relevantPendingUpkeeps.upkeepIds = upkeepIdsWithNoTokenPriceStill;
+      relevantPendingUpkeeps.save();
+    }
+  }
 
   const prices = poolCommitterInstance.priceHistory(event.params.updateIntervalId);
+
+  // Add to a pending array to do deferred checking if token price = 0
+  if (prices.value0.equals(ZERO_BYTE_ARRAY) || prices.value1.equals(ZERO_BYTE_ARRAY)) {
+    let pendingUpkeepWithNoTokenPrice = PendingUpkeepsWithNoTokenPrice.load(poolId);
+
+    if (!pendingUpkeepWithNoTokenPrice) {
+      pendingUpkeepWithNoTokenPrice = new PendingUpkeepsWithNoTokenPrice(poolId);
+      pendingUpkeepWithNoTokenPrice.upkeepIds = [];
+    }
+
+    // see docs here for updating array values on entities
+    // https://thegraph.com/docs/en/developer/assemblyscript-api/
+    let upkeepIds = pendingUpkeepWithNoTokenPrice.upkeepIds;
+    upkeepIds.push(upkeepId);
+    pendingUpkeepWithNoTokenPrice.upkeepIds = upkeepIds;
+    pendingUpkeepWithNoTokenPrice.save();
+  }
 
   let burningFee = floatingPointBytesToInt(event.params.burningFee, new BigInt(0));
   upkeep.burningFeeRaw = event.params.burningFee;
@@ -160,6 +224,7 @@ export function executedCommitsForInterval(event: ExecutedCommitsForInterval): v
     prices.value1,
     poolEntity.settlementTokenDecimals
   );
+
   upkeep.longTokenPrice = longTokenPrice;
   upkeep.longTokenPriceRaw = prices.value0;
   upkeep.shortTokenPrice = shortTokenPrice;
